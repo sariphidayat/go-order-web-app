@@ -28,6 +28,33 @@ npm run dev
 
 Frontend berjalan di `http://localhost:5173`.
 
+## Build Single Executable
+
+Frontend production build bisa digabungkan ke binary backend Go melalui `embed`.
+
+```bash
+make build
+```
+
+Perintah tersebut menjalankan:
+
+- `npm run build` di folder `frontend`
+- output Vite ke `backend/internal/web/dist`
+- `go build` backend ke `bin/customer-order-app`
+
+Jalankan executable:
+
+```bash
+./bin/customer-order-app
+```
+
+Setelah itu aplikasi frontend dan API tersedia dari server yang sama:
+
+- Web app: `http://localhost:8080`
+- API: `http://localhost:8080/api`
+
+Untuk development, `npm run dev` tetap memakai Vite di `http://localhost:5173` dan proxy `/api` ke backend `http://localhost:8080`.
+
 ## Login Development
 
 - Email: `admin@example.com`

@@ -1,11 +1,14 @@
 package routes
 
 import (
+	"net/http"
+	"strings"
 	"time"
 
 	"customer-order-app/backend/internal/config"
 	"customer-order-app/backend/internal/handlers"
 	"customer-order-app/backend/internal/middleware"
+	"customer-order-app/backend/internal/web"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -55,5 +58,34 @@ func Setup(db *gorm.DB, cfg config.Config) *gin.Engine {
 	protected.PUT("/order-tracks/:id", trackHandler.Update)
 	protected.DELETE("/order-tracks/:id", trackHandler.Delete)
 
+	registerFrontend(router)
+
 	return router
+}
+
+func registerFrontend(router *gin.Engine) {
+	dist, err := web.Dist()
+	if err != nil {
+		return
+	}
+
+	fileServer := http.FileServer(http.FS(dist))
+	router.NoRoute(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "route not found"})
+			return
+		}
+
+		path := strings.TrimPrefix(c.Request.URL.Path, "/")
+		if path != "" {
+			if file, err := dist.Open(path); err == nil {
+				_ = file.Close()
+				fileServer.ServeHTTP(c.Writer, c.Request)
+				return
+			}
+		}
+
+		c.Request.URL.Path = "/"
+		fileServer.ServeHTTP(c.Writer, c.Request)
+	})
 }
