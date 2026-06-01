@@ -3,6 +3,4 @@ app.db
 backend/app.db
 backend/*.db
 bin/
-frontend/dist/
-frontend/node_modules/
 .DS_Store

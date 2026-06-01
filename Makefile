@@ -1,19 +1,15 @@
-.PHONY: build build-frontend build-backend run-backend run-frontend
+.PHONY: build run test
 
 GOCACHE ?= $(CURDIR)/backend/.gocache
 
-build: build-frontend build-backend
-
-build-frontend:
-	cd frontend && npm run build
-
-build-backend:
+build:
 	mkdir -p bin backend/.gocache
 	cd backend && GOCACHE=$(GOCACHE) go build -o ../bin/customer-order-app ./cmd/server
 
-run-backend:
+run:
 	mkdir -p backend/.gocache
 	cd backend && GOCACHE=$(GOCACHE) go run ./cmd/server
 
-run-frontend:
-	cd frontend && npm run dev
+test:
+	mkdir -p backend/.gocache
+	cd backend && GOCACHE=$(GOCACHE) go test ./...

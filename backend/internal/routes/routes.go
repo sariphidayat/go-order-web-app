@@ -1,8 +1,7 @@
 package routes
 
 import (
-	"net/http"
-	"strings"
+	"log"
 	"time"
 
 	"customer-order-app/backend/internal/config"
@@ -29,6 +28,35 @@ func Setup(db *gorm.DB, cfg config.Config) *gin.Engine {
 	customerHandler := handlers.NewCustomerHandler(db)
 	orderHandler := handlers.NewOrderHandler(db)
 	trackHandler := handlers.NewOrderTrackHandler(db)
+	renderer, err := web.NewRenderer()
+	if err != nil {
+		log.Fatalf("template initialization failed: %v", err)
+	}
+	webHandler := handlers.NewWebHandler(db, cfg, renderer)
+
+	router.GET("/", webHandler.Home)
+	router.GET("/login", webHandler.LoginPage)
+	router.POST("/login", webHandler.Login)
+	router.GET("/logout", webHandler.Logout)
+
+	pages := router.Group("")
+	pages.Use(webHandler.RequireAuth())
+	pages.GET("/dashboard", webHandler.Dashboard)
+	pages.GET("/customers", webHandler.Customers)
+	pages.POST("/customers", webHandler.CreateCustomer)
+	pages.GET("/customers/:id/edit", webHandler.EditCustomer)
+	pages.POST("/customers/:id/update", webHandler.UpdateCustomer)
+	pages.DELETE("/customers/:id", webHandler.DeleteCustomer)
+	pages.GET("/orders", webHandler.Orders)
+	pages.POST("/orders", webHandler.CreateOrder)
+	pages.GET("/orders/:id/edit", webHandler.EditOrder)
+	pages.POST("/orders/:id/update", webHandler.UpdateOrder)
+	pages.DELETE("/orders/:id", webHandler.DeleteOrder)
+	pages.GET("/tracks", webHandler.Tracks)
+	pages.POST("/tracks", webHandler.CreateTrack)
+	pages.GET("/tracks/:id/edit", webHandler.EditTrack)
+	pages.POST("/tracks/:id/update", webHandler.UpdateTrack)
+	pages.DELETE("/tracks/:id", webHandler.DeleteTrack)
 
 	api := router.Group("/api")
 	api.GET("/health", func(c *gin.Context) {
@@ -58,34 +86,5 @@ func Setup(db *gorm.DB, cfg config.Config) *gin.Engine {
 	protected.PUT("/order-tracks/:id", trackHandler.Update)
 	protected.DELETE("/order-tracks/:id", trackHandler.Delete)
 
-	registerFrontend(router)
-
 	return router
-}
-
-func registerFrontend(router *gin.Engine) {
-	dist, err := web.Dist()
-	if err != nil {
-		return
-	}
-
-	fileServer := http.FileServer(http.FS(dist))
-	router.NoRoute(func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
-			c.JSON(http.StatusNotFound, gin.H{"error": "route not found"})
-			return
-		}
-
-		path := strings.TrimPrefix(c.Request.URL.Path, "/")
-		if path != "" {
-			if file, err := dist.Open(path); err == nil {
-				_ = file.Close()
-				fileServer.ServeHTTP(c.Writer, c.Request)
-				return
-			}
-		}
-
-		c.Request.URL.Path = "/"
-		fileServer.ServeHTTP(c.Writer, c.Request)
-	})
 }

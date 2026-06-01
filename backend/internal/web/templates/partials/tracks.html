@@ -1,0 +1,52 @@
+{{ define "tracks-table" }}
+<div id="tracks-table" class="overflow-x-auto">
+  <table class="min-w-full divide-y divide-slate-200">
+    <thead class="bg-slate-50">
+      <tr>
+        <th class="px-5 py-3 text-left text-xs font-semibold uppercase text-slate-500">Order</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold uppercase text-slate-500">Status</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold uppercase text-slate-500">Lokasi</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold uppercase text-slate-500">Waktu</th>
+        <th class="px-5 py-3 text-right text-xs font-semibold uppercase text-slate-500">Aksi</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      {{ range .Tracks }}
+      <tr>
+        <td class="px-5 py-3 text-sm font-medium">{{ .Order.OrderNumber }}</td>
+        <td class="px-5 py-3 text-sm text-slate-600">{{ .Status }}</td>
+        <td class="px-5 py-3 text-sm text-slate-600">{{ .Location }}</td>
+        <td class="px-5 py-3 text-sm text-slate-600">{{ dateTime .TrackedAt }}</td>
+        <td class="px-5 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50" hx-get="/tracks/{{ .ID }}/edit" hx-target="#modal-content">Edit</button>
+            <button class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50" hx-delete="/tracks/{{ .ID }}" hx-target="#tracks-table" hx-swap="outerHTML" hx-confirm="Hapus tracking ini?">Hapus</button>
+          </div>
+        </td>
+      </tr>
+      {{ else }}
+      <tr><td colspan="5" class="px-5 py-8 text-center text-sm text-slate-500">Belum ada tracking.</td></tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
+{{ end }}
+
+{{ define "track-edit-form" }}
+<form hx-post="/tracks/{{ .Track.ID }}/update" hx-target="#tracks-table" hx-swap="outerHTML" class="grid gap-4" hx-on::after-request="if(event.detail.successful) closeEntityModal()">
+  <label class="grid gap-1 text-sm font-medium">Order
+    <select name="order_id" required class="rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm">
+      {{ range .Orders }}<option value="{{ .ID }}" {{ selected .ID $.Track.OrderID }}>{{ .OrderNumber }}</option>{{ end }}
+    </select>
+  </label>
+  <label class="grid gap-1 text-sm font-medium">Status
+    <select name="status" required class="rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm">
+      {{ range .Statuses }}<option value="{{ . }}" {{ selected . $.Track.Status }}>{{ . }}</option>{{ end }}
+    </select>
+  </label>
+  <label class="grid gap-1 text-sm font-medium">Lokasi <input name="location" value="{{ .Track.Location }}" class="rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm" /></label>
+  <label class="grid gap-1 text-sm font-medium">Waktu <input name="tracked_at" type="datetime-local" value="{{ dateTimeInput .Track.TrackedAt }}" class="rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm" /></label>
+  <label class="grid gap-1 text-sm font-medium">Deskripsi <textarea name="description" class="rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm">{{ .Track.Description }}</textarea></label>
+  <button class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700">Update tracking</button>
+</form>
+{{ end }}

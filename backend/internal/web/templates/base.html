@@ -1,0 +1,99 @@
+{{ define "base" }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ .Title }} - OrderOps</title>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: '#0f766e'
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-100 text-slate-900 antialiased">
+    {{ if eq .Active "" }}
+      {{ template "content" . }}
+    {{ else }}
+      <div class="min-h-screen lg:flex">
+        <aside class="bg-slate-950 text-white lg:fixed lg:inset-y-0 lg:w-64">
+          <div class="flex h-16 items-center gap-3 border-b border-white/10 px-5">
+            <div class="grid h-10 w-10 place-items-center rounded-lg bg-teal-500 font-black">CO</div>
+            <div>
+              <div class="font-bold">OrderOps</div>
+              <div class="text-xs text-slate-400">Go + HTMX</div>
+            </div>
+          </div>
+          <nav class="grid gap-1 p-3 text-sm font-medium">
+            <a class="rounded-lg px-3 py-2 {{ if eq .Active "dashboard" }}bg-white/10 text-white{{ else }}text-slate-300 hover:bg-white/5{{ end }}" href="/dashboard">Dashboard</a>
+            <a class="rounded-lg px-3 py-2 {{ if eq .Active "customers" }}bg-white/10 text-white{{ else }}text-slate-300 hover:bg-white/5{{ end }}" href="/customers">Customers</a>
+            <a class="rounded-lg px-3 py-2 {{ if eq .Active "orders" }}bg-white/10 text-white{{ else }}text-slate-300 hover:bg-white/5{{ end }}" href="/orders">Orders</a>
+            <a class="rounded-lg px-3 py-2 {{ if eq .Active "tracks" }}bg-white/10 text-white{{ else }}text-slate-300 hover:bg-white/5{{ end }}" href="/tracks">Tracking</a>
+          </nav>
+        </aside>
+        <main class="min-w-0 flex-1 lg:pl-64">
+          <header class="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 class="text-2xl font-bold tracking-normal">{{ .Title }}</h1>
+              <p class="mt-1 text-sm text-slate-500">Customer, order, dan tracking dalam satu executable Go.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-medium text-slate-600">{{ .User.Name }}</span>
+              <a href="/logout" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Logout</a>
+            </div>
+          </header>
+          <section class="mx-auto w-full max-w-7xl px-5 py-6">
+            {{ template "content" . }}
+          </section>
+        </main>
+      </div>
+    {{ end }}
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/preline@latest/dist/preline.js"></script>
+    <script>
+      function openEntityModal() {
+        const modal = document.getElementById('entity-modal')
+        if (!modal) return
+
+        const panel = modal.querySelector('[data-modal-panel]')
+        modal.classList.remove('hidden', 'pointer-events-none')
+        modal.classList.add('block')
+        if (panel) {
+          panel.classList.remove('mt-12', 'opacity-0')
+          panel.classList.add('mt-7', 'opacity-100')
+        }
+      }
+
+      function closeEntityModal() {
+        const modal = document.getElementById('entity-modal')
+        if (!modal) return
+
+        const panel = modal.querySelector('[data-modal-panel]')
+        modal.classList.add('hidden', 'pointer-events-none')
+        modal.classList.remove('block')
+        if (panel) {
+          panel.classList.add('mt-12', 'opacity-0')
+          panel.classList.remove('mt-7', 'opacity-100')
+        }
+      }
+
+      document.addEventListener('htmx:afterSwap', function () {
+        if (window.HSStaticMethods) window.HSStaticMethods.autoInit()
+      })
+      document.body.addEventListener('htmx:afterSwap', function (event) {
+        if (event.detail.target && event.detail.target.id === 'modal-content') {
+          openEntityModal()
+        }
+      })
+    </script>
+  </body>
+</html>
+{{ end }}

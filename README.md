@@ -4,56 +4,28 @@ Aplikasi web-based untuk login JWT + TOTP 2FA dan CRUD data customer, order, ser
 
 ## Stack
 
-- Backend: Go, Gin, Gorm, SQLite, JWT, TOTP, godotenv
-- Frontend: Vue 3, Vite, Naive UI, Pinia, Vue Router, Axios
+- Backend dan UI server-rendered: Go, Gin, Gorm, SQLite, html/template, JWT, TOTP, godotenv
+- UI interactivity: HTMX dan AlpineJS
+- CSS framework: Tailwind CSS
+- UI kit: Preline UI
 
-## Menjalankan Backend
-
-```bash
-cd backend
-cp .env.example .env
-go run ./cmd/server
-```
-
-Backend berjalan di `http://localhost:8080`.
-
-## Menjalankan Frontend
+## Menjalankan Aplikasi
 
 ```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
+cp backend/.env.example backend/.env
+make run
 ```
 
-Frontend berjalan di `http://localhost:5173`.
+Aplikasi berjalan di `http://localhost:8080`.
 
-## Build Single Executable
-
-Frontend production build bisa digabungkan ke binary backend Go melalui `embed`.
+## Build Executable
 
 ```bash
 make build
-```
-
-Perintah tersebut menjalankan:
-
-- `npm run build` di folder `frontend`
-- output Vite ke `backend/internal/web/dist`
-- `go build` backend ke `bin/customer-order-app`
-
-Jalankan executable:
-
-```bash
 ./bin/customer-order-app
 ```
 
-Setelah itu aplikasi frontend dan API tersedia dari server yang sama:
-
-- Web app: `http://localhost:8080`
-- API: `http://localhost:8080/api`
-
-Untuk development, `npm run dev` tetap memakai Vite di `http://localhost:5173` dan proxy `/api` ke backend `http://localhost:8080`.
+Tidak ada proses build JavaScript. Go meng-embed template HTML dari `backend/internal/web/templates`, lalu executable menyajikan halaman server-rendered di origin yang sama dengan API.
 
 ## Login Development
 
@@ -65,6 +37,21 @@ Masukkan secret tersebut ke Google Authenticator, Microsoft Authenticator, 1Pass
 
 ## Endpoint Utama
 
+- `GET /login`
+- `POST /login`
+- `GET /dashboard`
+- `GET|POST /customers`
+- `GET /customers/:id/edit`
+- `POST /customers/:id/update`
+- `DELETE /customers/:id`
+- `GET|POST /orders`
+- `GET /orders/:id/edit`
+- `POST /orders/:id/update`
+- `DELETE /orders/:id`
+- `GET|POST /tracks`
+- `GET /tracks/:id/edit`
+- `POST /tracks/:id/update`
+- `DELETE /tracks/:id`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
 - `GET|POST /api/customers`

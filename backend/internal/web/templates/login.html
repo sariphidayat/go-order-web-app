@@ -1,0 +1,33 @@
+{{ define "content" }}
+<main class="grid min-h-screen place-items-center bg-slate-950 px-4 py-10">
+  <section class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <div class="mb-6">
+      <div class="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-teal-600 font-black text-white">CO</div>
+      <h1 class="text-3xl font-bold tracking-normal">OrderOps</h1>
+      <p class="mt-2 text-sm text-slate-500">Masuk memakai password dan kode authenticator 6 digit.</p>
+    </div>
+    {{ if .Error }}
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ .Error }}</div>
+    {{ end }}
+    <div class="mb-5 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-900">
+      Development admin: <strong>admin@example.com</strong> / <strong>admin12345</strong><br />
+      TOTP secret: <strong>JBSWY3DPEHPK3PXP</strong>
+    </div>
+    <form class="grid gap-4" method="post" action="/login">
+      <label class="grid gap-1 text-sm font-medium text-slate-700">
+        Email
+        <input name="email" type="email" value="admin@example.com" required class="block w-full rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500" />
+      </label>
+      <label class="grid gap-1 text-sm font-medium text-slate-700">
+        Password
+        <input name="password" type="password" value="admin12345" required class="block w-full rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500" />
+      </label>
+      <label class="grid gap-1 text-sm font-medium text-slate-700">
+        Authenticator code
+        <input name="otp" maxlength="6" inputmode="numeric" required class="block w-full rounded-lg border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-teal-500 focus:ring-teal-500" placeholder="123456" />
+      </label>
+      <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-700">Login</button>
+    </form>
+  </section>
+</main>
+{{ end }}
