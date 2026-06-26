@@ -1,5 +1,5 @@
 {{ define "content" }}
-<div class="grid gap-5" x-data="{ open: true }">
+<div class="grid gap-5" x-data="{ open: true, isLoading: false }">
   <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="mb-4 flex items-center justify-between gap-3">
       <h2 class="font-semibold">Tambah tracking</h2>
@@ -21,9 +21,30 @@
       </div>
     </form>
   </div>
-  <div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="relative rounded-xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 px-5 py-4">
       <h2 class="font-semibold">Data tracking</h2>
+    </div>
+    <div
+      x-show="isLoading"
+      x-transition
+      class="absolute inset-0 z-50 flex items-center justify-center bg-white/70">
+
+      <svg class="h-8 w-8 animate-spin text-teal-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24">
+        <circle class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"></circle>
+        <path class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+
     </div>
     {{ template "tracks-table" . }}
   </div>
